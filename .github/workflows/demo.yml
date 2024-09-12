@@ -3,21 +3,19 @@ name: Build and Release .NET Framework 4.8 Project
 on:
   push:
     tags:
-      - "v*" # Triggers when pushing a tag that matches v*, e.g., v1.0, v1.0.0
-  workflow_dispatch: # Allows manual triggering
+      - 'v*'  # Triggers when pushing a tag that matches v*, e.g., v1.0, v1.0.0
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   build:
-    runs-on: windows-latest # Use Windows runner for .NET Framework
+    runs-on: windows-latest  # Use Windows runner for .NET Framework
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Set up NuGet
-        uses: NuGet/setup-nuget@v3
-        with:
-          nuget-version: latest
+        uses: NuGet/setup-nuget@v1  # Correct version for NuGet setup
 
       - name: Restore Dependencies
         run: nuget restore
@@ -37,7 +35,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.ref }} # Use the tag name from the trigger (if available)
+          tag_name: ${{ github.ref }}  # Use the tag name from the trigger (if available)
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
