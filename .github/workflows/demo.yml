@@ -32,6 +32,9 @@ jobs:
         run: |
           msbuild.exe DescopeSampleApp.sln /p:platform="Any CPU" /p:configuration="Release"
 
+      - name: List Files in Build Directory
+        run: dir _build
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
