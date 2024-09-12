@@ -16,8 +16,9 @@ jobs:
       
       - name: Download NuGet
         run: |
-          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86/nuget.exe -OutFile nuget.exe
+          Invoke-WebRequest -Uri https://dist.nuget.org/win-x64/nuget.exe -OutFile nuget.exe
           $env:PATH += ";$PWD"
+
       
       - name: Create Build Directory
         run: mkdir _build
