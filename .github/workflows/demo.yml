@@ -24,10 +24,19 @@ jobs:
         run: |
           & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" /p:Configuration=Release
 
+      - name: Verify Build Output
+        run: |
+          dir bin\Release /s
+
       - name: Publish the Project
         run: |
-          mkdir publish
-          xcopy /s /e /y bin\Release\* publish\
+          if (Test-Path "bin\Release") {
+            mkdir publish
+            xcopy /s /e /y bin\Release\* publish\
+          } else {
+            Write-Host "Build output directory 'bin\Release' does not exist."
+            exit 1
+          }
 
       - name: Archive the Build Artifacts
         run: Compress-Archive -Path ./publish/* -DestinationPath release.zip
