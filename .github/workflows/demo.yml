@@ -1,62 +1,38 @@
-name: Build and Release .NET Framework 4.8 Project
+name: EZRep Build
 
 on:
   push:
-    tags:
-      - 'v*'  # Triggers when pushing a tag that matches v*, e.g., v1.0, v1.0.0
-  workflow_dispatch:  # Allows manual triggering
+    branches: master
 
 jobs:
   build:
-    runs-on: windows-latest  # Use Windows runner for .NET Framework
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up NuGet
-        uses: NuGet/setup-nuget@v1
-
-      - name: Restore Dependencies
-        run: nuget restore
-
-      - name: Build the Project
+      - uses: actions/checkout@v2
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.2
+      - name: Navigate to Workspace
+        run: cd $GITHUB_WORKSPACE
+      
+      - name: Create Build Directory
+        run: mkdir _build
+      - name: Restore Packages
+        run: nuget restore EzRep.sln
+      
+      - name: Build Solution
         run: |
-          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" /p:Configuration=Release /p:OutputPath=bin\Release
-
-      - name: Verify Build Output
+          msbuild.exe DescopeSampleApp.sln /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build"
+      - name: Build Solution
         run: |
-          dir bin /s
-
-      - name: Publish the Project
-        run: |
-          if (Test-Path "bin\Release") {
-            mkdir publish
-            xcopy /s /e /y bin\Release\* publish\
-          } else {
-            Write-Host "Build output directory 'bin\Release' does not exist."
-            exit 1
-          }
-
-      - name: Archive the Build Artifacts
-        run: Compress-Archive -Path ./publish/* -DestinationPath release.zip
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+          msbuild.exe DescopeSampleApp.sln /p:platform="Any CPU" /p:configuration="Release"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
         with:
-          tag_name: ${{ github.ref }}  # Use the tag name from the trigger (if available)
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: sampleBundle
+          path: "./_build"
 
-      - name: Upload Build Artifacts to Release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release.zip
-          asset_name: release.zip
-          asset_content_type: application/zip
+
+
