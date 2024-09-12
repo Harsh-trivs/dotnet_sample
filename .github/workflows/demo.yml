@@ -24,7 +24,7 @@ jobs:
         run: mkdir _build
 
       - name: Restore Packages
-        run: nuget.exe restore EzRep.sln
+        run: nuget.exe restore DescopeSampleApp.sln
 
       - name: Build and Publish Solution
         run: |
