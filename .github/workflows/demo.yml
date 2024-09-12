@@ -14,12 +14,12 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
       
-      - name: Download NuGet
-        run: |
-          Invoke-WebRequest -Uri https://dist.nuget.org/win-x64/nuget.exe -OutFile nuget.exe
-          $env:PATH += ";$PWD"
+      - name: Set up NuGet
+        uses: NuGet/setup-nuget@v1
 
-      
+      - name: Restore Dependencies
+        run: nuget restore
+        
       - name: Create Build Directory
         run: mkdir _build
 
